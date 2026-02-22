@@ -1,10 +1,12 @@
+#codigo pra rodar
+
 from machine import Pin
 from time import sleep
 
-# Meu codigo
-led_red = Pin(4, Pin.OUT) 
-led_yellow = Pin(0, Pin.OUT)
-led_green = Pin(2, Pin.OUT)
+led_red = Pin(25, Pin.OUT)
+led_yellow = Pin(26, Pin.OUT)
+led_green = Pin(27, Pin.OUT)
+
 
 def all_off():
     led_red.value(0)
