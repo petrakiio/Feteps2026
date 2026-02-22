@@ -23,4 +23,5 @@ def click():
 
 while True:
     click()
-   
+
+#Link do projeto:https://wokwi.com/projects/456620349301088257
