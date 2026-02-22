@@ -2,6 +2,7 @@ from machine import Pin
 from time import sleep
 
 # Meu codigo
+#Semaforo
 led_red = Pin(4, Pin.OUT) 
 led_yellow = Pin(0, Pin.OUT)
 led_green = Pin(2, Pin.OUT)
@@ -32,3 +33,5 @@ def run_cycle():
 
 while True:
     run_cycle()
+
+#Link project:https://wokwi.com/projects/456612407980718081
