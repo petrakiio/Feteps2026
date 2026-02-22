@@ -15,5 +15,3 @@ while True:
   sleep(2) # Espera 1 segundo
   ledRed.value(0) # Desliga o led: 0 > false
   sleep(2)
-
-#Meu codigo
