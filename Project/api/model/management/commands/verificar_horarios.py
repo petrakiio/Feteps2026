@@ -5,6 +5,7 @@ from django.db.utils import OperationalError, ProgrammingError
 from django.utils import timezone
 
 from model.user import User
+from routes.alert import notificar_roda
 
 
 class Command(BaseCommand):
@@ -63,3 +64,12 @@ class Command(BaseCommand):
             self.stdout.write(
                 f"- {usuario.name} | remédio: {usuario.remedio} | horário: {usuario.horario.strftime('%H:%M')}"
             )
+            ok, detalhe = notificar_roda(
+                user_name=usuario.name,
+                remedio=usuario.remedio,
+                horario=usuario.horario.strftime("%H:%M"),
+            )
+            if ok:
+                self.stdout.write(self.style.SUCCESS(f"  > Arduino: {detalhe}"))
+            else:
+                self.stdout.write(self.style.WARNING(f"  > Arduino: {detalhe}"))

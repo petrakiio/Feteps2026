@@ -1,2 +1,3 @@
-from django.http import HttpRequest
-
+"""
+Rota de comunicação com arduino(ainda vazia)
+"""
