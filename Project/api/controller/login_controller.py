@@ -6,6 +6,7 @@ from django.views.decorators.http import require_POST
 from model.user import User
 
 def _get_payload(request):
+    # Aceita tanto JSON (frontend separado) quanto form-data.
     if request.content_type and "application/json" in request.content_type:
         try:
             return json.loads(request.body.decode("utf-8") or "{}"), None
@@ -20,12 +21,14 @@ def cadastro(request):
     if error:
         return error
 
+    # Campos esperados para criar o usuario.
     name = payload.get("nome")
     gmail = payload.get("gmail")
     password = payload.get("password")
     remedio = payload.get("remedio")
     horario = payload.get("horario")
 
+    # Retorna quais campos obrigatorios faltaram.
     missing = [
         field
         for field, value in {
@@ -44,6 +47,7 @@ def cadastro(request):
         )
 
     try:
+        # Persiste o novo usuario.
         user = User.objects.create(
             name=name,
             gmail=gmail,
@@ -63,6 +67,7 @@ def logar(request):
     if error:
         return error
 
+    # Credenciais usadas no login.
     gmail = payload.get("gmail")
     password = payload.get("password")
 
@@ -81,10 +86,12 @@ def logar(request):
         )
 
     try:
+        # Autenticacao simples por email e senha.
         user = User.objects.get(gmail=gmail, password=password)
     except User.DoesNotExist:
         return JsonResponse({"error": "Email ou senha invalidos"}, status=401)
 
+    # Guarda o usuario autenticado na sessao.
     request.session["user_id"] = user.id
     return JsonResponse(
         {
