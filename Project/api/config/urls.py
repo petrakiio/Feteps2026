@@ -16,10 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from routes.login_route import LoginRoutes
+from routes.home import All_Routes
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/cadastro/', LoginRoutes.cad, name='cadastro'),
+    path('api/cadastro/', All_Routes['Cad'], name='cadastro'),
 ]
