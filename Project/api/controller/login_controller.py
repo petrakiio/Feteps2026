@@ -1,6 +1,7 @@
 import json
 
 from django.http import JsonResponse
+from django.contrib.auth.hashers import check_password, make_password
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from model.user import User
@@ -28,6 +29,12 @@ def cadastro(request):
     remedio = payload.get("remedio")
     horario = payload.get("horario")
 
+    # Normaliza o nome para salvar sempre em minusculo.
+    if isinstance(name, str):
+        name = name.strip().lower()
+    if isinstance(gmail, str):
+        gmail = gmail.strip().lower()
+
     # Retorna quais campos obrigatorios faltaram.
     missing = [
         field
@@ -51,7 +58,8 @@ def cadastro(request):
         user = User.objects.create(
             name=name,
             gmail=gmail,
-            password=password,
+            # Salva hash da senha, nunca texto puro.
+            password=make_password(password),
             remedio=remedio,
             horario=horario,
         )
@@ -70,6 +78,8 @@ def logar(request):
     # Credenciais usadas no login.
     gmail = payload.get("gmail")
     password = payload.get("password")
+    if isinstance(gmail, str):
+        gmail = gmail.strip().lower()
 
     missing = [
         field
@@ -86,10 +96,16 @@ def logar(request):
         )
 
     try:
-        # Autenticacao simples por email e senha.
-        user = User.objects.get(gmail=gmail, password=password)
+        user = User.objects.get(gmail=gmail)
     except User.DoesNotExist:
         return JsonResponse({"error": "Email ou senha invalidos"}, status=401)
+
+    # Valida hash e mantem compatibilidade com registros antigos em texto puro.
+    if not check_password(password, user.password):
+        if user.password != password:
+            return JsonResponse({"error": "Email ou senha invalidos"}, status=401)
+        user.password = make_password(password)
+        user.save(update_fields=["password"])
 
     # Guarda o usuario autenticado na sessao.
     request.session["user_id"] = user.id
