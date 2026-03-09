@@ -22,4 +22,5 @@ from routes.home import All_Routes
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/cadastro/', All_Routes['Login']['cadastro'], name='cadastro'),
+    path('api/login/', All_Routes['Login']['login'], name='login'),
 ]

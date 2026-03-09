@@ -5,17 +5,20 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from model.user import User
 
+def _get_payload(request):
+    if request.content_type and "application/json" in request.content_type:
+        try:
+            return json.loads(request.body.decode("utf-8") or "{}"), None
+        except json.JSONDecodeError:
+            return None, JsonResponse({"error": "JSON invalido"}, status=400)
+    return request.POST, None
+
 @csrf_exempt
 @require_POST
 def cadastro(request):
-    payload = {}
-    if request.content_type and "application/json" in request.content_type:
-        try:
-            payload = json.loads(request.body.decode("utf-8") or "{}")
-        except json.JSONDecodeError:
-            return JsonResponse({"error": "JSON invalido"}, status=400)
-    else:
-        payload = request.POST
+    payload, error = _get_payload(request)
+    if error:
+        return error
 
     name = payload.get("nome")
     gmail = payload.get("gmail")
@@ -52,3 +55,45 @@ def cadastro(request):
         return JsonResponse({"error": str(exc)}, status=400)
 
     return JsonResponse({"id": user.id, "message": "Usuario cadastrado"}, status=201)
+
+@csrf_exempt
+@require_POST
+def logar(request):
+    payload, error = _get_payload(request)
+    if error:
+        return error
+
+    gmail = payload.get("gmail")
+    password = payload.get("password")
+
+    missing = [
+        field
+        for field, value in {
+            "gmail": gmail,
+            "password": password,
+        }.items()
+        if not value
+    ]
+    if missing:
+        return JsonResponse(
+            {"error": "Campos obrigatorios ausentes", "fields": missing},
+            status=400,
+        )
+
+    try:
+        user = User.objects.get(gmail=gmail, password=password)
+    except User.DoesNotExist:
+        return JsonResponse({"error": "Email ou senha invalidos"}, status=401)
+
+    request.session["user_id"] = user.id
+    return JsonResponse(
+        {
+            "message": "Login realizado",
+            "user": {
+                "id": user.id,
+                "nome": user.name,
+                "gmail": user.gmail,
+            },
+        },
+        status=200,
+    )
