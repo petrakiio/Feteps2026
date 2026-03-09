@@ -23,4 +23,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/cadastro/', All_Routes['Login']['cadastro'], name='cadastro'),
     path('api/login/', All_Routes['Login']['login'], name='login'),
+    path('api/usuarios/', All_Routes['Consulta']['usuarios'], name='usuarios'),
 ]

@@ -207,3 +207,73 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]
 ```
+
+## Teste rapido no Postman
+
+Base URL local:
+
+- `http://127.0.0.1:8000`
+
+### 1. Cadastro de usuario
+
+- Metodo: `POST`
+- URL: `http://127.0.0.1:8000/api/cadastro/`
+- Headers: `Content-Type: application/json`
+- Body (raw JSON):
+
+```json
+{
+  "nome": "Ana",
+  "gmail": "ana@email.com",
+  "password": "123456",
+  "remedio": "Dipirona",
+  "horario": "08:30:00"
+}
+```
+
+Resposta esperada (sucesso):
+
+```json
+{
+  "id": 1,
+  "message": "Usuario cadastrado"
+}
+```
+
+### 2. Login
+
+- Metodo: `POST`
+- URL: `http://127.0.0.1:8000/api/login/`
+- Headers: `Content-Type: application/json`
+- Body (raw JSON):
+
+```json
+{
+  "gmail": "ana@email.com",
+  "password": "123456"
+}
+```
+
+Resposta esperada (sucesso):
+
+```json
+{
+  "message": "Login realizado",
+  "user": {
+    "id": 1,
+    "nome": "Ana",
+    "gmail": "ana@email.com"
+  }
+}
+```
+
+### 3. Consulta de usuarios (protegida por codigo)
+
+- Metodo: `GET`
+- URL com codigo correto:
+  `http://127.0.0.1:8000/api/usuarios/?codigo=admin123`
+- URL sem codigo (ou errado):
+  `http://127.0.0.1:8000/api/usuarios/`
+
+Com codigo correto retorna lista de usuarios em JSON.
+Sem codigo correto retorna `[]`.
