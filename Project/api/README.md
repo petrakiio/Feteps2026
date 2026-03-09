@@ -214,6 +214,14 @@ Base URL local:
 
 - `http://127.0.0.1:8000`
 
+Resumo de endpoints:
+
+| Metodo | Endpoint | Uso |
+|---|---|---|
+| `POST` | `/api/cadastro/` | Criar usuario |
+| `POST` | `/api/login/` | Autenticar usuario |
+| `GET` | `/api/usuarios/?codigo=admin123` | Listar usuarios (somente com codigo) |
+
 ### 1. Cadastro de usuario
 
 - Metodo: `POST`
@@ -277,3 +285,53 @@ Resposta esperada (sucesso):
 
 Com codigo correto retorna lista de usuarios em JSON.
 Sem codigo correto retorna `[]`.
+
+## JSONs prontos para teste
+
+### Cadastro (valido)
+
+```json
+{
+  "nome": "Joao Silva",
+  "gmail": "joao.silva@email.com",
+  "password": "senha123",
+  "remedio": "Paracetamol",
+  "horario": "07:30:00"
+}
+```
+
+### Cadastro (faltando campo - deve retornar erro 400)
+
+```json
+{
+  "nome": "Maria Souza",
+  "gmail": "maria@email.com",
+  "password": "123456",
+  "horario": "10:00:00"
+}
+```
+
+### Login (valido)
+
+```json
+{
+  "gmail": "joao.silva@email.com",
+  "password": "senha123"
+}
+```
+
+### Login (senha errada - deve retornar 401)
+
+```json
+{
+  "gmail": "joao.silva@email.com",
+  "password": "senha-errada"
+}
+```
+
+### Consulta de usuarios (GET)
+
+Nao usa body JSON. Use a query string:
+
+- Correto: `http://127.0.0.1:8000/api/usuarios/?codigo=admin123`
+- Errado: `http://127.0.0.1:8000/api/usuarios/?codigo=abc`
