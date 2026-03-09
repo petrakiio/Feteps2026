@@ -21,5 +21,5 @@ from routes.home import All_Routes
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/cadastro/', All_Routes['Cad'], name='cadastro'),
+    path('api/cadastro/', All_Routes['Login']['cadastro'], name='cadastro'),
 ]
