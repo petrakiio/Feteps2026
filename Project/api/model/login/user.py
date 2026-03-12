@@ -2,7 +2,7 @@ from django.db import models
 
 class User(models.Model):
     name = models.CharField(max_length=120)
-    gmail = models.EmailField(unique=True)
+    email = models.EmailField(unique=True)
     password = models.CharField(max_length=128)
     remedio = models.CharField(max_length=120)
     horario = models.TimeField()
