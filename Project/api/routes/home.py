@@ -27,5 +27,6 @@ All_Routes = {
         'cadastro':CuidadorRoutes.cad,
         'lista':CuidadorRoutes.list,
         'detalhe':CuidadorRoutes.detail,
+        'detalhe_idoso':CuidadorRoutes.detail_with_idoso,
     }
 }

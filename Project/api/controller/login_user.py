@@ -28,6 +28,9 @@ def cadastro(request):
     password = payload.get("password")
     remedio = payload.get("remedio")
     horario = payload.get("horario")
+    remedios = payload.get("remedios", [])
+    horarios = payload.get("horarios", [])
+    id_doctor = payload.get("id_doctor")
 
     # Normaliza o nome para salvar sempre em minusculo.
     if isinstance(name, str):
@@ -53,6 +56,12 @@ def cadastro(request):
             status=400,
         )
 
+    # Normaliza listas quando vier um unico valor.
+    if isinstance(remedios, str):
+        remedios = [remedios]
+    if isinstance(horarios, str):
+        horarios = [horarios]
+
     try:
         # Persiste o novo usuario.
         user = User.objects.create(
@@ -62,6 +71,9 @@ def cadastro(request):
             password=make_password(password),
             remedio=remedio,
             horario=horario,
+            remedios=remedios if isinstance(remedios, list) else [],
+            horarios=horarios if isinstance(horarios, list) else [],
+            id_doctor=int(id_doctor) if id_doctor not in (None, "") else None,
         )
     except Exception as exc:
         return JsonResponse({"error": str(exc)}, status=400)

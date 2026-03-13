@@ -1,23 +1,43 @@
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
-from model.user import User
+from django.db.models import Q
+from model.login.user import User
+from model.login.doctor import Doctor
 
 
 @require_GET
 def consultar_usuarios(request):
-    # A consulta so e liberada com o codigo administrativo.
+    # A consulta e liberada com token de medico ou admin123.
     codigo = request.GET.get("codigo")
-    if codigo != "admin123":
-        # Sem codigo valido, nao retorna dados de usuarios.
-        return JsonResponse([], safe=False, status=200)
+    if not codigo:
+        return JsonResponse({"error": "Codigo ausente"}, status=400)
 
     # Campos expostos no JSON de resposta.
-    users = User.objects.all().values(
+    base_fields = (
         "id",
         "name",
-        "gmail",
+        "email",
+        "cpf",
         "remedio",
         "horario",
+        "remedios",
+        "horarios",
         "data_criacao",
+        "id_doctor",
     )
+
+    if codigo == "admin123":
+        # Admin ve apenas usuarios sem medico associado.
+        users = User.objects.filter(Q(id_doctor__isnull=True) | Q(id_doctor=0)).values(
+            *base_fields
+        )
+        return JsonResponse(list(users), safe=False, status=200)
+
+    # Token de medico: retorna apenas pacientes daquele medico.
+    try:
+        doctor = Doctor.objects.get(token=codigo)
+    except Doctor.DoesNotExist:
+        return JsonResponse({"error": "Token invalido"}, status=401)
+
+    users = User.objects.filter(id_doctor=doctor.id).values(*base_fields)
     return JsonResponse(list(users), safe=False, status=200)

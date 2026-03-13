@@ -1,4 +1,9 @@
-from controller.cuidador_controller import criar_cuidador, listar_cuidadores, detalhar_cuidador
+from controller.cuidador_controller import (
+    criar_cuidador,
+    listar_cuidadores,
+    detalhar_cuidador,
+    detalhar_cuidador_com_idoso,
+)
 
 
 class CuidadorRoutes:
@@ -13,3 +18,7 @@ class CuidadorRoutes:
     @staticmethod
     def detail(request, cuidador_id):
         return detalhar_cuidador(request, cuidador_id)
+
+    @staticmethod
+    def detail_with_idoso(request, cuidador_id):
+        return detalhar_cuidador_com_idoso(request, cuidador_id)

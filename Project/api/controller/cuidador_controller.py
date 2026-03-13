@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from model.login.cuidador import Cuidador
+from model.login.user import User
 
 
 def _get_payload(request):
@@ -93,3 +94,37 @@ def detalhar_cuidador(request, cuidador_id):
         return JsonResponse({"error": "Cuidador nao encontrado"}, status=404)
 
     return JsonResponse(cuidador, status=200)
+
+
+@require_http_methods(["GET"])
+def detalhar_cuidador_com_idoso(request, cuidador_id):
+    # Retorna os dados do cuidador e do idoso associado.
+    try:
+        cuidador = Cuidador.objects.get(id=cuidador_id)
+    except Cuidador.DoesNotExist:
+        return JsonResponse({"error": "Cuidador nao encontrado"}, status=404)
+
+    try:
+        idoso = User.objects.values(
+            "id",
+            "name",
+            "email",
+            "cpf",
+            "remedio",
+            "horario",
+            "data_criacao",
+            "id_doctor",
+        ).get(id=cuidador.id_idoso)
+    except User.DoesNotExist:
+        return JsonResponse({"error": "Idoso nao encontrado"}, status=404)
+
+    cuidador_data = {
+        "id": cuidador.id,
+        "nome": cuidador.nome,
+        "email": cuidador.email,
+        "cpf": cuidador.cpf,
+        "id_idoso": cuidador.id_idoso,
+        "data_criacao": cuidador.data_criacao,
+    }
+
+    return JsonResponse({"cuidador": cuidador_data, "idoso": idoso}, status=200)

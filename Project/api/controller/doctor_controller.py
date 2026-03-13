@@ -1,5 +1,8 @@
 import json
+import secrets
+import string
 
+from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -24,14 +27,17 @@ def criar_doctor(request):
 
     nome = payload.get("nome")
     idade = payload.get("idade")
-    token = payload.get("token")
+    cpf = payload.get("cpf")
+    password = payload.get("password")
+    paciente_ids = payload.get("paciente_ids", [])
 
     missing = [
         field
         for field, value in {
             "nome": nome,
             "idade": idade,
-            "token": token,
+            "cpf": cpf,
+            "password": password,
         }.items()
         if value in (None, "")
     ]
@@ -46,28 +52,54 @@ def criar_doctor(request):
     except (TypeError, ValueError):
         return JsonResponse({"error": "Idade invalida"}, status=400)
 
+    # Gera um token numerico de 250 digitos usando secrets.
+    token = "".join(secrets.choice(string.digits) for _ in range(250))
+
     try:
         doctor = Doctor.objects.create(
             nome=nome,
             idade=idade_int,
+            cpf=cpf,
+            password=make_password(password),
             token=token,
+            paciente_ids=paciente_ids if isinstance(paciente_ids, list) else [],
         )
     except Exception as exc:
         return JsonResponse({"error": str(exc)}, status=400)
 
-    return JsonResponse({"id": doctor.id, "message": "Doctor cadastrado"}, status=201)
+    return JsonResponse(
+        {"id": doctor.id, "token": doctor.token, "message": "Doctor cadastrado"},
+        status=201,
+    )
 
 
 @require_http_methods(["GET"])
 def listar_doctors(request):
-    doctors = Doctor.objects.all().values("id", "nome", "idade", "token")
+    # Lista sem expor senha.
+    doctors = Doctor.objects.all().values(
+        "id",
+        "nome",
+        "idade",
+        "cpf",
+        "token",
+        "paciente_ids",
+        "data_criacao",
+    )
     return JsonResponse(list(doctors), safe=False, status=200)
 
 
 @require_http_methods(["GET"])
 def detalhar_doctor(request, doctor_id):
     try:
-        doctor = Doctor.objects.values("id", "nome", "idade", "token").get(id=doctor_id)
+        doctor = Doctor.objects.values(
+            "id",
+            "nome",
+            "idade",
+            "cpf",
+            "token",
+            "paciente_ids",
+            "data_criacao",
+        ).get(id=doctor_id)
     except Doctor.DoesNotExist:
         return JsonResponse({"error": "Doctor nao encontrado"}, status=404)
 
