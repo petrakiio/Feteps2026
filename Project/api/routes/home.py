@@ -1,4 +1,4 @@
-from routes.login_route import LoginRoutes
+from routes.login_user import LoginRoutes
 from routes.consulta_route import ConsultaRoute
 
 

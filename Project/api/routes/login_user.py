@@ -1,4 +1,4 @@
-from controller.login_controller import cadastro, logar
+from controller.login_user import cadastro, logar
 from django.views.decorators.csrf import csrf_exempt
 
 class LoginRoutes:

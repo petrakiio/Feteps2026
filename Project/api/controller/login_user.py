@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.contrib.auth.hashers import check_password, make_password
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from model.user import User
+from model.login.user import User
 
 def _get_payload(request):
     # Aceita tanto JSON (frontend separado) quanto form-data.
