@@ -9,9 +9,11 @@ API em Django para cadastrar usuarios e verificar, minuto a minuto, quem precisa
 
 ## Estrutura principal
 
-- `model/user.py`: model `User` com campo `horario` (`TimeField`)
+- `model/login/user.py`: model `User` (paciente/idoso)
+- `model/login/doctor.py`: model `Doctor` (token automatico de 250 digitos)
+- `model/login/cuidador.py`: model `Cuidador`
 - `model/management/commands/verificar_horarios.py`: comando que faz a checagem
-- `routes/alert.py`: envia notificacao para o dispositivo via Wi-Fi (HTTP)
+- `routes/alert_route.py`: rota de comunicacao com dispositivo (placeholder)
 
 ## Setup rapido
 
@@ -128,7 +130,7 @@ Exemplo simples de pagina (`index.html`) com cadastro e login:
   <div class="card">
     <h2>Cadastro</h2>
     <input id="cadNome" placeholder="Nome" />
-    <input id="cadGmail" placeholder="Gmail" type="email" />
+    <input id="cadEmail" placeholder="Email" type="email" />
     <input id="cadPassword" placeholder="Senha" type="password" />
     <input id="cadRemedio" placeholder="Remedio" />
     <input id="cadHorario" type="time" />
@@ -137,7 +139,7 @@ Exemplo simples de pagina (`index.html`) com cadastro e login:
 
   <div class="card">
     <h2>Login</h2>
-    <input id="logGmail" placeholder="Gmail" type="email" />
+    <input id="logEmail" placeholder="Email" type="email" />
     <input id="logPassword" placeholder="Senha" type="password" />
     <button onclick="login()">Entrar</button>
   </div>
@@ -158,8 +160,9 @@ Exemplo simples de pagina (`index.html`) com cadastro e login:
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           nome: document.getElementById("cadNome").value,
-          gmail: document.getElementById("cadGmail").value,
+          email: document.getElementById("cadEmail").value,
           password: document.getElementById("cadPassword").value,
+          cpf: "00000000000",
           remedio: document.getElementById("cadRemedio").value,
           horario: document.getElementById("cadHorario").value + ":00"
         })
@@ -172,7 +175,7 @@ Exemplo simples de pagina (`index.html`) com cadastro e login:
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          gmail: document.getElementById("logGmail").value,
+          email: document.getElementById("logEmail").value,
           password: document.getElementById("logPassword").value
         })
       });
@@ -218,11 +221,23 @@ Resumo de endpoints:
 
 | Metodo | Endpoint | Uso |
 |---|---|---|
-| `POST` | `/api/cadastro/` | Criar usuario |
+| `POST` | `/api/cadastro/` | Criar usuario (paciente) |
+| `POST` | `/api/idosos/cadastro/` | Criar idoso (usuario sem doutor) |
 | `POST` | `/api/login/` | Autenticar usuario |
-| `GET` | `/api/usuarios/?codigo=admin123` | Listar usuarios (somente com codigo) |
+| `GET` | `/api/usuarios/?codigo=admin123` | Usuarios sem doutor |
+| `GET` | `/api/usuarios/?codigo=TOKEN_MEDICO` | Pacientes do medico |
+| `POST` | `/api/doctors/cadastro/` | Criar medico (token automatico) |
+| `GET` | `/api/doctors/` | Listar medicos |
+| `GET` | `/api/doctors/<id>/` | Detalhar medico |
+| `POST` | `/api/instituicoes/cadastro/` | Criar instituicao |
+| `GET` | `/api/instituicoes/` | Listar instituicoes |
+| `GET` | `/api/instituicoes/<id_doctor>/` | Detalhar instituicao |
+| `POST` | `/api/cuidadores/cadastro/` | Criar cuidador |
+| `GET` | `/api/cuidadores/` | Listar cuidadores |
+| `GET` | `/api/cuidadores/<id>/` | Detalhar cuidador |
+| `GET` | `/api/cuidadores/<id>/idoso/` | Cuidador + idoso |
 
-### 1. Cadastro de usuario
+### 1. Cadastro de usuario (paciente)
 
 - Metodo: `POST`
 - URL: `http://127.0.0.1:8000/api/cadastro/`
@@ -232,10 +247,14 @@ Resumo de endpoints:
 ```json
 {
   "nome": "Ana",
-  "gmail": "ana@email.com",
+  "email": "ana@email.com",
   "password": "123456",
+  "cpf": "12345678901",
   "remedio": "Dipirona",
-  "horario": "08:30:00"
+  "horario": "08:30:00",
+  "remedios": ["Dipirona", "Omeprazol"],
+  "horarios": ["08:30:00", "20:30:00"],
+  "id_doctor": 1
 }
 ```
 
@@ -257,7 +276,7 @@ Resposta esperada (sucesso):
 
 ```json
 {
-  "gmail": "ana@email.com",
+  "email": "ana@email.com",
   "password": "123456"
 }
 ```
@@ -270,7 +289,7 @@ Resposta esperada (sucesso):
   "user": {
     "id": 1,
     "nome": "Ana",
-    "gmail": "ana@email.com"
+      "email": "ana@email.com"
   }
 }
 ```
@@ -283,8 +302,8 @@ Resposta esperada (sucesso):
 - URL sem codigo (ou errado):
   `http://127.0.0.1:8000/api/usuarios/`
 
-Com codigo correto retorna lista de usuarios em JSON.
-Sem codigo correto retorna `[]`.
+Com `admin123` retorna usuarios sem medico associado.
+Com token de medico retorna pacientes daquele medico.
 
 ## JSONs prontos para teste
 
@@ -293,10 +312,14 @@ Sem codigo correto retorna `[]`.
 ```json
 {
   "nome": "Joao Silva",
-  "gmail": "joao.silva@email.com",
+  "email": "joao.silva@email.com",
   "password": "senha123",
+  "cpf": "12345678901",
   "remedio": "Paracetamol",
-  "horario": "07:30:00"
+  "horario": "07:30:00",
+  "remedios": ["Paracetamol"],
+  "horarios": ["07:30:00"],
+  "id_doctor": 1
 }
 ```
 
@@ -305,8 +328,9 @@ Sem codigo correto retorna `[]`.
 ```json
 {
   "nome": "Maria Souza",
-  "gmail": "maria@email.com",
+  "email": "maria@email.com",
   "password": "123456",
+  "cpf": "12345678901",
   "horario": "10:00:00"
 }
 ```
@@ -315,7 +339,7 @@ Sem codigo correto retorna `[]`.
 
 ```json
 {
-  "gmail": "joao.silva@email.com",
+  "email": "joao.silva@email.com",
   "password": "senha123"
 }
 ```
@@ -324,7 +348,7 @@ Sem codigo correto retorna `[]`.
 
 ```json
 {
-  "gmail": "joao.silva@email.com",
+  "email": "joao.silva@email.com",
   "password": "senha-errada"
 }
 ```
@@ -333,5 +357,5 @@ Sem codigo correto retorna `[]`.
 
 Nao usa body JSON. Use a query string:
 
-- Correto: `http://127.0.0.1:8000/api/usuarios/?codigo=admin123`
-- Errado: `http://127.0.0.1:8000/api/usuarios/?codigo=abc`
+- Admin: `http://127.0.0.1:8000/api/usuarios/?codigo=admin123`
+- Medico: `http://127.0.0.1:8000/api/usuarios/?codigo=TOKEN_MEDICO`

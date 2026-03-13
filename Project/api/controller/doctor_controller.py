@@ -85,7 +85,11 @@ def listar_doctors(request):
         "paciente_ids",
         "data_criacao",
     )
-    return JsonResponse(list(doctors), safe=False, status=200)
+    data = list(doctors)
+    for item in data:
+        if item.get("data_criacao"):
+            item["data_criacao"] = item["data_criacao"].strftime("%Y-%m-%d %H:%M:%S")
+    return JsonResponse(data, safe=False, status=200)
 
 
 @require_http_methods(["GET"])
@@ -103,4 +107,6 @@ def detalhar_doctor(request, doctor_id):
     except Doctor.DoesNotExist:
         return JsonResponse({"error": "Doctor nao encontrado"}, status=404)
 
+    if doctor.get("data_criacao"):
+        doctor["data_criacao"] = doctor["data_criacao"].strftime("%Y-%m-%d %H:%M:%S")
     return JsonResponse(doctor, status=200)

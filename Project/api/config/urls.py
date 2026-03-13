@@ -34,4 +34,5 @@ urlpatterns = [
     path('api/cuidadores/', All_Routes['Cuidador']['lista'], name='cuidador_lista'),
     path('api/cuidadores/<int:cuidador_id>/', All_Routes['Cuidador']['detalhe'], name='cuidador_detalhe'),
     path('api/cuidadores/<int:cuidador_id>/idoso/', All_Routes['Cuidador']['detalhe_idoso'], name='cuidador_idoso'),
+    path('api/idosos/cadastro/', All_Routes['Idoso']['cadastro'], name='idoso_cadastro'),
 ]

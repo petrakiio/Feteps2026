@@ -3,6 +3,7 @@ from routes.consulta_route import ConsultaRoute
 from routes.doctor_route import DoctorRoutes
 from routes.instituicao_route import InstituicaoRoutes
 from routes.cuidador_route import CuidadorRoutes
+from routes.idoso_route import IdosoRoutes
 
 
 All_Routes = {
@@ -28,5 +29,8 @@ All_Routes = {
         'lista':CuidadorRoutes.list,
         'detalhe':CuidadorRoutes.detail,
         'detalhe_idoso':CuidadorRoutes.detail_with_idoso,
-    }
+    },
+    'Idoso':{
+        'cadastro':IdosoRoutes.cad,
+    },
 }

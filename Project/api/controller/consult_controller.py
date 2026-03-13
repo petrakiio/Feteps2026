@@ -31,7 +31,11 @@ def consultar_usuarios(request):
         users = User.objects.filter(Q(id_doctor__isnull=True) | Q(id_doctor=0)).values(
             *base_fields
         )
-        return JsonResponse(list(users), safe=False, status=200)
+        data = list(users)
+        for item in data:
+            if item.get("data_criacao"):
+                item["data_criacao"] = item["data_criacao"].strftime("%Y-%m-%d %H:%M:%S")
+        return JsonResponse(data, safe=False, status=200)
 
     # Token de medico: retorna apenas pacientes daquele medico.
     try:
@@ -40,4 +44,8 @@ def consultar_usuarios(request):
         return JsonResponse({"error": "Token invalido"}, status=401)
 
     users = User.objects.filter(id_doctor=doctor.id).values(*base_fields)
-    return JsonResponse(list(users), safe=False, status=200)
+    data = list(users)
+    for item in data:
+        if item.get("data_criacao"):
+            item["data_criacao"] = item["data_criacao"].strftime("%Y-%m-%d %H:%M:%S")
+    return JsonResponse(data, safe=False, status=200)
