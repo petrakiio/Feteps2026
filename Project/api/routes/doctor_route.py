@@ -1,8 +1,10 @@
 from controller.doctor_controller import criar_doctor, listar_doctors, detalhar_doctor
+from django.views.decorators.csrf import csrf_exempt
 
 
 class DoctorRoutes:
     @staticmethod
+    @csrf_exempt
     def cad(request):
         return criar_doctor(request)
 

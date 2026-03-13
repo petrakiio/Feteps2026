@@ -3,10 +3,12 @@ from controller.instituicao_controller import (
     listar_instituicoes,
     detalhar_instituicao,
 )
+from django.views.decorators.csrf import csrf_exempt
 
 
 class InstituicaoRoutes:
     @staticmethod
+    @csrf_exempt
     def cad(request):
         return criar_instituicao(request)
 

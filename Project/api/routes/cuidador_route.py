@@ -4,10 +4,12 @@ from controller.cuidador_controller import (
     detalhar_cuidador,
     detalhar_cuidador_com_idoso,
 )
+from django.views.decorators.csrf import csrf_exempt
 
 
 class CuidadorRoutes:
     @staticmethod
+    @csrf_exempt
     def cad(request):
         return criar_cuidador(request)
 
