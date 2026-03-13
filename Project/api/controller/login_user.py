@@ -24,7 +24,7 @@ def cadastro(request):
 
     # Campos esperados para criar o usuario.
     name = payload.get("nome")
-    gmail = payload.get("gmail")
+    email = payload.get("email")
     password = payload.get("password")
     remedio = payload.get("remedio")
     horario = payload.get("horario")
@@ -35,15 +35,15 @@ def cadastro(request):
     # Normaliza o nome para salvar sempre em minusculo.
     if isinstance(name, str):
         name = name.strip().lower()
-    if isinstance(gmail, str):
-        gmail = gmail.strip().lower()
+    if isinstance(email, str):
+        email = email.strip().lower()
 
     # Retorna quais campos obrigatorios faltaram.
     missing = [
         field
         for field, value in {
             "nome": name,
-            "gmail": gmail,
+            "email": email,
             "password": password,
             "remedio": remedio,
             "horario": horario,
@@ -66,7 +66,7 @@ def cadastro(request):
         # Persiste o novo usuario.
         user = User.objects.create(
             name=name,
-            gmail=gmail,
+            email=email,
             # Salva hash da senha, nunca texto puro.
             password=make_password(password),
             remedio=remedio,
@@ -88,15 +88,15 @@ def logar(request):
         return error
 
     # Credenciais usadas no login.
-    gmail = payload.get("gmail")
+    email = payload.get("email")
     password = payload.get("password")
-    if isinstance(gmail, str):
-        gmail = gmail.strip().lower()
+    if isinstance(email, str):
+        email = email.strip().lower()
 
     missing = [
         field
         for field, value in {
-            "gmail": gmail,
+            "email": email,
             "password": password,
         }.items()
         if not value
@@ -108,7 +108,7 @@ def logar(request):
         )
 
     try:
-        user = User.objects.get(gmail=gmail)
+        user = User.objects.get(email=email)
     except User.DoesNotExist:
         return JsonResponse({"error": "Email ou senha invalidos"}, status=401)
 
@@ -127,7 +127,7 @@ def logar(request):
             "user": {
                 "id": user.id,
                 "nome": user.name,
-                "gmail": user.gmail,
+                "email": user.email,
             },
         },
         status=200,

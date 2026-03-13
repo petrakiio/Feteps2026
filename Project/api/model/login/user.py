@@ -4,7 +4,7 @@ class User(models.Model):
     name = models.CharField(max_length=120)
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=128)
-    cpf = models.CharField(max_length=11)
+    cpf = models.CharField(max_length=11,unique=True)
     # Remedio/horario unico (mantido para compatibilidade).
     remedio = models.CharField(max_length=120)
     horario = models.TimeField()
