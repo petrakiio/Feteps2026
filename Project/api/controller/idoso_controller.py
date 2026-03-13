@@ -8,6 +8,7 @@ from model.login.user import User
 
 
 def _get_payload(request):
+    # Aceita JSON (frontend separado) ou form-data.
     if request.content_type and "application/json" in request.content_type:
         try:
             return json.loads(request.body.decode("utf-8") or "{}"), None
@@ -23,6 +24,7 @@ def cadastro_idoso(request):
     if error:
         return error
 
+    # Campos basicos do idoso (user sem doutor).
     name = payload.get("nome")
     email = payload.get("email")
     password = payload.get("password")

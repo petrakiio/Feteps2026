@@ -74,6 +74,13 @@ python3 manage.py verificar_horarios --loop --interval 60
 - A checagem so encontra usuarios se existir registro na tabela `model_user`.
 - O dispositivo precisa estar na mesma rede e responder no endpoint `/girar`.
 
+## Relacionamentos entre tabelas
+
+- `Doctor` -> `User`: um medico possui varios pacientes. O vinculo real e o campo `User.id_doctor` apontando para `Doctor.id` (N:1).
+- `Doctor` -> `Instituicao`: a instituicao usa `id_doctor` como PK e FK, entao o relacionamento e 1:1.
+- `Cuidador` -> `User`: o cuidador aponta para um idoso pelo campo `Cuidador.id_idoso` (1:1).
+- `Doctor.paciente_ids`: e uma lista simples de IDs, nao e relacionamento relacional (serve apenas para referencia manual).
+
 ## Integracao com HTML/CSS (frontend separado)
 
 Quando o frontend nao fica dentro do Django, use `fetch` para chamar a API:
@@ -237,6 +244,8 @@ Resumo de endpoints:
 | `GET` | `/api/cuidadores/<id>/` | Detalhar cuidador |
 | `GET` | `/api/cuidadores/<id>/idoso/` | Cuidador + idoso |
 
+Formato de `data_criacao` nos retornos: `YYYY-MM-DD HH:MM:SS` (sem microssegundos).
+
 ### 1. Cadastro de usuario (paciente)
 
 - Metodo: `POST`
@@ -304,6 +313,81 @@ Resposta esperada (sucesso):
 
 Com `admin123` retorna usuarios sem medico associado.
 Com token de medico retorna pacientes daquele medico.
+
+### 4. Cadastro de idoso (usuario sem doutor)
+
+- Metodo: `POST`
+- URL: `http://127.0.0.1:8000/api/idosos/cadastro/`
+- Body (raw JSON):
+
+```json
+{
+  "nome": "Maria",
+  "email": "maria@email.com",
+  "password": "123456",
+  "cpf": "12345678901",
+  "remedio": "Dipirona",
+  "horario": "08:00:00",
+  "remedios": ["Dipirona"],
+  "horarios": ["08:00:00"]
+}
+```
+
+### 5. Cadastro de doctor
+
+- Metodo: `POST`
+- URL: `http://127.0.0.1:8000/api/doctors/cadastro/`
+- Body (raw JSON):
+
+```json
+{
+  "nome": "Dr Carlos",
+  "idade": 45,
+  "cpf": "12345678901",
+  "password": "senha123",
+  "paciente_ids": [1, 2, 3]
+}
+```
+
+Resposta inclui `token` de 250 digitos.
+
+### 6. Cadastro de instituicao
+
+- Metodo: `POST`
+- URL: `http://127.0.0.1:8000/api/instituicoes/cadastro/`
+- Body (raw JSON):
+
+```json
+{
+  "id_doctor": 1,
+  "nome": "Clinica Alfa",
+  "cnpj": "12345678901234",
+  "bairro": "Centro",
+  "rua": "Rua A",
+  "cep": "12345678"
+}
+```
+
+### 7. Cadastro de cuidador
+
+- Metodo: `POST`
+- URL: `http://127.0.0.1:8000/api/cuidadores/cadastro/`
+- Body (raw JSON):
+
+```json
+{
+  "nome": "Ana",
+  "email": "ana@email.com",
+  "password": "123456",
+  "cpf": "99999999999",
+  "id_idoso": 1
+}
+```
+
+### 8. Cuidador + idoso
+
+- Metodo: `GET`
+- URL: `http://127.0.0.1:8000/api/cuidadores/1/idoso/`
 
 ## JSONs prontos para teste
 
