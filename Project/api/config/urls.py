@@ -24,4 +24,13 @@ urlpatterns = [
     path('api/cadastro/', All_Routes['Login']['cadastro'], name='cadastro'),
     path('api/login/', All_Routes['Login']['login'], name='login'),
     path('api/usuarios/', All_Routes['Consulta']['usuarios'], name='usuarios'),
+    path('api/doctors/cadastro/', All_Routes['Doctor']['cadastro'], name='doctor_cadastro'),
+    path('api/doctors/', All_Routes['Doctor']['lista'], name='doctor_lista'),
+    path('api/doctors/<int:doctor_id>/', All_Routes['Doctor']['detalhe'], name='doctor_detalhe'),
+    path('api/instituicoes/cadastro/', All_Routes['Instituicao']['cadastro'], name='instituicao_cadastro'),
+    path('api/instituicoes/', All_Routes['Instituicao']['lista'], name='instituicao_lista'),
+    path('api/instituicoes/<int:id_doctor>/', All_Routes['Instituicao']['detalhe'], name='instituicao_detalhe'),
+    path('api/cuidadores/cadastro/', All_Routes['Cuidador']['cadastro'], name='cuidador_cadastro'),
+    path('api/cuidadores/', All_Routes['Cuidador']['lista'], name='cuidador_lista'),
+    path('api/cuidadores/<int:cuidador_id>/', All_Routes['Cuidador']['detalhe'], name='cuidador_detalhe'),
 ]
