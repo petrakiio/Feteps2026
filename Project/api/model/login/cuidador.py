@@ -1,13 +1,12 @@
 from django.db import models
 
-class User(models.Model):
-    name = models.CharField(max_length=120)
+class Cuidador(models.Model):
+    nome = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=128)
     cpf = models.CharField(max_length=11)
-    remedio = models.CharField(max_length=120)
-    horario = models.TimeField()
+    id_idoso = models.IntegerField(default=0,unique=True)
     data_criacao = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.name
+        return self.nome
