@@ -3,9 +3,7 @@ import time
 from django.core.management.base import BaseCommand
 from django.db.utils import OperationalError, ProgrammingError
 from django.utils import timezone
-
-from model.user import User
-from Project.api.routes.alert_route import notificar_roda
+from routes.alert_route import notificar_roda
 
 
 class Command(BaseCommand):

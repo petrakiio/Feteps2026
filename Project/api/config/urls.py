@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from routes.home import All_Routes
+from routes.alert_route import alert
 
 
 urlpatterns = [
@@ -35,4 +36,5 @@ urlpatterns = [
     path('api/cuidadores/<int:cuidador_id>/', All_Routes['Cuidador']['detalhe'], name='cuidador_detalhe'),
     path('api/cuidadores/<int:cuidador_id>/idoso/', All_Routes['Cuidador']['detalhe_idoso'], name='cuidador_idoso'),
     path('api/idosos/cadastro/', All_Routes['Idoso']['cadastro'], name='idoso_cadastro'),
+    path('api/alert/', alert, name='alert'),
 ]
