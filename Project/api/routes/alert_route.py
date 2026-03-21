@@ -13,6 +13,7 @@ from model.login.user import User
 
 
 def _get_payload(request):
+    # Suporta JSON (frontend separado) e form-data.
     if request.content_type and "application/json" in request.content_type:
         try:
             return json.loads(request.body.decode("utf-8") or "{}"), None
@@ -22,6 +23,7 @@ def _get_payload(request):
 
 
 def _parse_time(value):
+    # Normaliza string/TimeField para objeto time.
     if isinstance(value, time_cls):
         return value
     if not value:
@@ -54,11 +56,12 @@ def _user_matches_hora(user, agora):
 @csrf_exempt
 @require_http_methods(["GET", "POST"])
 def alert(request):
-    # Permite filtrar por nome, mas se nao enviar retorna todos os que batem no horario.
+    # Endpoint usado pelo dispositivo/cliente para checar quem esta no horario.
     payload, error = _get_payload(request)
     if error:
         return error
 
+    # Permite filtrar por nome, mas se nao enviar retorna todos os que batem no horario.
     nome = (
         request.GET.get("nome")
         or request.GET.get("name")
@@ -73,6 +76,7 @@ def alert(request):
     if nome:
         usuarios = usuarios.filter(name=nome)
 
+    # Monta lista de usuarios cujo horario bate com o minuto atual.
     encontrados = []
     for usuario in usuarios:
         ok, horario_match = _user_matches_hora(usuario, agora)
@@ -100,6 +104,7 @@ def alert(request):
 
 
 def notificar_roda(user_name, remedio, horario):
+    # Envia payload para o dispositivo (Arduino/ESP) via HTTP.
     url = os.getenv("ARDUINO_URL", "http://192.168.0.50/girar")
     token = os.getenv("ARDUINO_TOKEN", "").strip()
     timeout = float(os.getenv("ARDUINO_TIMEOUT", "3") or 3)
